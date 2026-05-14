@@ -1,26 +1,26 @@
 networks:
 
-  # Kein Internet: für interne Container-Kommunikation
+  # No internet - only for internal container communication
   ai_intern:
     internal: true
     driver: bridge
     ipam:
       config:
-        - subnet: 172.31.0.0/24   # Festes internes Subnetz
+        - subnet: 172.31.0.0/24   # static internal subnet
 
-  # Nur Host-Kommunikation: Container -> Ollama auf dem Host
-  #    internal: false damit host-gateway erreichbar ist
+  # Only host communication: Container -> Ollama on host
+  #    internal is set to false, so host-gateway is accessible
   ai_host:
     internal: false
     driver: bridge
     driver_opts:
-      com.docker.network.bridge.name: br-ai-host  # Netzwerkname fest zugewiesen
+      com.docker.network.bridge.name: br-ai-host  # Network name permanently assigned
     ipam:
       config:
-        - subnet: 172.30.0.0/24   # Festes Subnetz – siehe UFW Regel
+        - subnet: 172.30.0.0/24   # Static subnet – see UFW rule
 
-  # Mit Internet: nur bei Bedarf für OpenWebUI Init / N8n Webhooks
-  # Netzwerk einfach nach Bedarf aus den networks-Einträgen entfernen oder hinzufügen
+  # With Internet: only when needed for OpenWebUI Init / N8n Webhooks
+  # Simply remove or add the network from the networks entries as needed
   ai_extern:
     internal: false
 
@@ -33,22 +33,22 @@ services:
     container_name: open-webui
     restart: unless-stopped
     networks:
-      - ai_intern   # interne Kommunikation
-      - ai_host     # für host-gateway -> Ollama
-      # Beim ersten Start zum Herunterladen eingebetteter Modelle (z.B. Whisper):
+      - ai_intern   # internal container communication
+      - ai_host     # for host-gateway -> Ollama
+      # The first time you launch the application to download embedded models (e.g., Whisper):
       # - ai_extern
     ports:
-      - "127.0.0.1:3000:8080"   # nur vom Host aus erreichbar
+      - "127.0.0.1:3000:8080"   # accessible only from the host
     volumes:
       - webui_daten:/app/backend/data
     extra_hosts:
-      - "host.docker.internal:host-gateway"   # löst zur Host-IP auf
+      - "host.docker.internal:host-gateway"   # resolves to the host IP
     environment:
-      # Ollama-Verbindung
+      # Ollama-connection
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - RAG_EMBEDDING_ENGINE=ollama
 
-      # Datenschutz
+      # Privacy
       - SCARF_NO_ANALYTICS=true
       - DO_NOT_TRACK=1
       - ANONYMIZED_TELEMETRY=false
@@ -57,13 +57,13 @@ services:
       - CORS_ALLOW_ORIGIN=http://localhost:3000
       - WEBUI_URL=http://localhost:3000
 
-      # Offline-Modus (kein HuggingFace etc.), ggf. bei erstem Start auskommentieren!
+      # Offline Mode (no HuggingFace etc.), comment this out on first run if necessary!
       - OFFLINE_MODE=true
       - HF_DATASETS_OFFLINE=1
       - TRANSFORMERS_OFFLINE=1
       - HF_HUB_OFFLINE=1
 
-      # Optional: Auto-Updates deaktivieren (eigentl. nicht erforderlich, wenn ai_extern nicht verbunden)
+      # Optional: disable automatic updates (not actually necessary if ai_extern is not connected)
       # - RAG_EMBEDDING_MODEL_AUTO_UPDATE=false
       # - RAG_RERANKING_MODEL_AUTO_UPDATE=false
       # - WHISPER_MODEL_AUTO_UPDATE=false
@@ -75,23 +75,23 @@ services:
     container_name: n8n
     restart: unless-stopped
     networks:
-      - ai_intern   # interne Kommunikation mit Open WebUI
-      - ai_host     # für host-gateway → Ollama
-      # Für externe Webhooks / APIs:
+      - ai_intern   # internal communicaiton with OpenWebUI
+      - ai_host     # for host-gateway → Ollama
+      # For external webhooks / APIs:
       # - ai_extern
     ports:
-      - "127.0.0.1:5678:5678"   # nur vom Host aus erreichbar
+      - "127.0.0.1:5678:5678"   # accessible only from the host
     volumes:
       - n8n_daten:/home/node/.n8n
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      # Datenschutz / keine Cloud-Verbindungen
+      # privacy / no cloud-connection
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
       - N8N_TEMPLATES_ENABLED=false
 
-      # Ollama-Verbindung in n8n über folgende URL möglich:
+      # You can connect to Ollama in n8n via the following URL:
       #    Base URL: http://host.docker.internal:11434
 
 
