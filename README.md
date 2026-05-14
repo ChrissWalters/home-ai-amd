@@ -343,28 +343,30 @@ Install the `Continue` extension (by Continue Dev, Inc.) from the Open VSX Regis
 4. Alternatively: edit the file directly at `~/.continue/config.yaml`
 
 > **Note:** `config.json` is deprecated. Continue now uses `config.yaml` exclusively.
+> **Note:** To fix qwen3-coder could not use tools, we have to use the openai - Interface of Ollama.
 
 Insert the following content (or add the model entries to an existing file):
 
 ```yaml
-name: Local Ollama
+name: Local Config
 version: 1.0.0
 schema: v1
-
 models:
   - name: qwen3-coder (Chat)
-    provider: ollama
+    provider: openai
     model: qwen3-coder
-    apiBase: http://localhost:11434
+    apiBase: http://localhost:11434/v1/
     roles:
       - chat
       - edit
       - apply
-
+    capabilities:
+      - tool_use
+    toolCallStrategy: auto
   - name: qwen3-coder (Autocomplete)
-    provider: ollama
+    provider: openai
     model: qwen3-coder
-    apiBase: http://localhost:11434
+    apiBase: http://localhost:11434/v1/
     roles:
       - autocomplete
     autocompleteOptions:
