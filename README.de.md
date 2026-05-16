@@ -352,7 +352,7 @@ name: Local Config
 version: 1.0.0
 schema: v1
 models:
-  - name: qwen3-coder (Chat)
+  - name: qwen3-coder
     provider: openai
     model: qwen3-coder
     apiBase: http://localhost:11434/v1/
@@ -362,7 +362,16 @@ models:
       - apply
     capabilities:
       - tool_use
-    toolCallStrategy: auto
+  - name: gemma4:e4b
+    provider: ollama
+    model: gemma4:e4b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    capabilities:
+      - tool_use
   - name: qwen3-coder (Autocomplete)
     provider: openai
     model: qwen3-coder
