@@ -1,3 +1,5 @@
+# Wird nicht mehr weiterverfolgt - ARCHIVIERT
+
 # home-ai-amd
 
 Local AI infrastructure on AMD hardware running Linux (tested on CachyOS / Arch).  
@@ -89,9 +91,15 @@ sudo usermod -aG video,render,docker $USER
 ### 3. Install Ollama Natively (with ROCm, Arch/CachyOS)
 
 ```bash
-sudo pacman -S rocm-hip-sdk rocm-opencl-sdk ollama-rocm
+curl -fsSL https://ollama.com/install.sh | sh
 ```
+On AMD, ROC should be installed automaticly
 
+Alternative way (Arch/CachyOS)
+```bash
+sudo pacman -S ollama-rocm
+```
+> **Important:** Accept depencies
 ---
 
 ### 4. Configure Ollama
@@ -127,6 +135,8 @@ Environment="OLLAMA_FLASH_ATTENTION=1"
 Environment="OLLAMA_NUM_PARALLEL=1"
 # Model stays loaded in VRAM for 30 minutes (0 = always, -1 = unload immediately)
 Environment="OLLAMA_KEEP_ALIVE=30m"
+# Manually set Context-Length (see: https://docs.ollama.com/context-length)
+# Enviroment="OLLAMA_CONTEXT_LENGTH=4096"
 ```
 
 Save: `Ctrl+O` → Enter → `Ctrl+X`

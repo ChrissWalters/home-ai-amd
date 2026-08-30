@@ -27,6 +27,33 @@ networks:
 
 services:
 
+  # LiteLLM Proxy 
+  # Normalizes Tool Calls (e.g. Qwen3, Llama) to OpenAI format.
+  # Claude Code: export ANTHROPIC_BASE_URL=http://localhost:4000
+  #              export ANTHROPIC_AUTH_TOKEN=sk-local-litellm
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm
+    restart: unless-stopped
+    networks:
+      - ai_intern   # OpenWebUI + n8n reach LiteLLM via http://litellm:4000
+      - ai_host     # LiteLLM -> Ollama on host
+    ports:
+      - "127.0.0.1:4000:4000"   # accessible from host only (for Claude Code CLI)
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["--config", "/app/config.yaml", "--host", "0.0.0.0", "--port", "4000"]
+    environment:
+      - LITELLM_MASTER_KEY=sk-local-litellm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health/liveliness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
   # Chat-Interface
   open-webui:
     image: ghcr.io/open-webui/open-webui:latest
@@ -38,7 +65,7 @@ services:
       # The first time you launch the application to download embedded models (e.g., Whisper):
       # - ai_extern
     ports:
-      - "127.0.0.1:3000:8080"   # accessible only from the host
+      - "3000:8080"   # accessible only from the host
     volumes:
       - webui_daten:/app/backend/data
     extra_hosts:

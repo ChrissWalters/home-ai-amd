@@ -1,0 +1,53 @@
+# LiteLLM Proxy Konfiguration
+# Claude Code nutzt ANTHROPIC_BASE_URL → LiteLLM → Ollama (Host)
+# Tool Calls werden von LiteLLM normalisiert, bevor sie Claude Code erreichen.
+
+model_list:
+
+  # ── Qwen3 ──────────────────────────────────────────────────────────────────
+  # Modellname muss exakt dem Ollama-Namen entsprechen
+  - model_name: qwen3-coder:30b          # Name den Claude Code / OpenWebUI sieht
+    litellm_params:
+      model: ollama/qwen3-coder:30b
+      api_base: http://host.docker.internal:11434
+      stream: true
+
+  - model_name: gemma4:e4b
+    litellm_params:
+      model: ollama/gemma4:e4b
+      api_base: http://host.docker.internal:11434
+      stream: true
+
+  # ── Weitere Modelle (Beispiele, nach Bedarf anpassen) ─────────────────────
+  # - model_name: llama3.1:8b
+  #   litellm_params:
+  #     model: ollama_chat/llama3.1:8b
+  #     api_base: http://host.docker.internal:11434
+
+  # ── Fallback-Alias für Claude Code ────────────────────────────────────────
+  # Claude Code fragt standardmäßig nach "claude-*"-Modellnamen.
+  # Mit diesem Alias wird jede Anfrage auf das gewünschte lokale Modell umgeleitet.
+  - model_name: claude-opus-4-5
+    litellm_params:
+      model: ollama/qwen3-coder:30b
+      api_base: http://host.docker.internal:11434
+
+  - model_name: claude-haiku-4-5-20251001
+    litellm_params:
+      model: ollama/qwen3-coder:30b
+      api_base: http://host.docker.internal:11434
+      extra_body:
+        think: false
+
+  - model_name: claude-sonnet-4-5
+    litellm_params:
+      model: ollama/gemma4:e4b
+      api_base: http://host.docker.internal:11434
+
+# Proxy-Einstellungen
+litellm_settings:
+  drop_params: true        # Unbekannte Parameter ignorieren (z. B. Anthropic-spezifische Felder)
+  set_verbose: false
+
+general_settings:
+  master_key: "sk-local-litellm"   # Beliebiger Key – nur intern genutzt
