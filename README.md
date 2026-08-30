@@ -1,4 +1,4 @@
-# Wird nicht mehr weiterverfolgt - ARCHIVIERT
+# Project set to archived - UNMAINTAINED
 
 # home-ai-amd
 
