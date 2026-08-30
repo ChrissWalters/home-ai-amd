@@ -1,3 +1,5 @@
+# Project set to archived - UNMAINTAINED
+
 # home-ai-amd
 
 Lokale KI-Infrastruktur auf AMD-Hardware unter Linux (getestet auf CachyOS / Arch).  
